@@ -27,7 +27,7 @@ public class NetMan : MonoBehaviourPunCallbacks
             laveBladeSpinner.spin * (float) PhotonNetwork.Time;
 
         //create my player on all laptops in the room
-        Vector3 pos = new Vector3(Random.Range(-8, 8), Random.Range(-8, 8), 0);
+        Vector3 pos = new Vector3(Random.Range(-8, 8), Random.Range(-4, 4), 0);
         PhotonNetwork.Instantiate(playerPrefab.name, pos, Quaternion.identity);
     }    
 }
