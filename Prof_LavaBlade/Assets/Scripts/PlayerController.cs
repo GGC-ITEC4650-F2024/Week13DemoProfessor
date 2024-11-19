@@ -14,8 +14,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable //add 
     Text scoreTxt;
 
     public int health;
+    public int score;
 
-    void Awake() {
+    // Happens Before Collisions or Anything Else
+    void Awake()
+    {
         myBod = GetComponent<Rigidbody>();
         myNetView = GetComponent<PhotonView>();
         heathBarTran = transform.Find("Canvas/GreenHealth").GetComponent<Transform>();
@@ -33,10 +36,26 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable //add 
     // Update is called once per frame
     void Update()
     {
+        scoreTxt.text = "" + score;
         float hp = health / 100f;
-        heathBarTran.localScale = new Vector3(hp, 1, 1);
+        if (hp > 0)
+        {
+            heathBarTran.localScale = new Vector3(hp, 1, 1);
+        }
+        else //DEAD
+        {
+            heathBarTran.localScale = new Vector3(0, 1, 1);
+            myBod.constraints = RigidbodyConstraints.FreezeAll;
+            transform.position = new Vector3(
+                transform.position.x,
+                transform.position.y,
+                5);
+            namePlate.color = Color.gray;
+        }
 
-        if(myNetView.Owner == PhotonNetwork.LocalPlayer) {
+
+        if (myNetView.Owner == PhotonNetwork.LocalPlayer)
+        {
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
             Vector3 f = new Vector3(h, v, 0);
@@ -44,15 +63,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable //add 
             //tell all my clones about my new position
             // done by PhotonRigidBodyView component
         }
-        else {
+        else
+        {
             //get position from network and update this cube
             // done by PhotonRigidBodyView component
         }
     }
 
 
-    void OnTriggerStay(Collider other){
-        if(myNetView.Owner == PhotonNetwork.LocalPlayer) {
+    void OnTriggerStay(Collider other)
+    {
+        if (myNetView.Owner == PhotonNetwork.LocalPlayer)
+        {
             health -= 1;
             //tell all my clones about my health?
         }
@@ -61,11 +83,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable //add 
     //add health to network stream
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if(myNetView.Owner == PhotonNetwork.LocalPlayer) {
+        if (myNetView.Owner == PhotonNetwork.LocalPlayer)
+        {
             stream.SendNext(health);
         }
-        else {
-            health = (int) stream.ReceiveNext();
+        else
+        {
+            health = (int)stream.ReceiveNext();
         }
+    }
+
+    [PunRPC]
+    public void increaseScore(int n) {
+        this.score += n;
     }
 }

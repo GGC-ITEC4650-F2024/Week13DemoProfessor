@@ -8,6 +8,8 @@ using Photon.Realtime;
 public class NetMan : MonoBehaviourPunCallbacks
 {
     public GameObject playerPrefab;
+    public GameObject ballPrefab;
+
     Spinner laveBladeSpinner;
     // Start is called before the first frame update
     void Start()
@@ -29,5 +31,17 @@ public class NetMan : MonoBehaviourPunCallbacks
         //create my player on all laptops in the room
         Vector3 pos = new Vector3(Random.Range(-8, 8), Random.Range(-4, 4), 0);
         PhotonNetwork.Instantiate(playerPrefab.name, pos, Quaternion.identity);
-    }    
+    } 
+
+    // Runs on server when a remote player enters the room
+    public override void OnPlayerEnteredRoom(Player newPlayer) {
+        if(PhotonNetwork.IsMasterClient) { //if this pc is the server
+            if(PhotonNetwork.CurrentRoom.PlayerCount == 4) {
+                // instantiate the ball
+                PhotonNetwork.InstantiateRoomObject(ballPrefab.name,
+                    Vector3.zero, Quaternion.identity);
+            }
+        }
+    }
+
 }
